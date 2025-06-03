@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/gloomy.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Business Knowledge Graph Puzzle</title>
+  </head>
+<body>
+  <div id="app">
+    <!-- Sidebar: must exist before UIScene runs -->
+    <aside id="ui-panel">
+      <h2 id="level-title">Level 1</h2>
+      <p id="story-text">Press “Start” to begin.</p>
+      <div class="info">
+        Time: <span id="timer">0</span>s
+        &nbsp;&nbsp;|&nbsp;&nbsp;
+        Score: <span id="score">0</span>
+      </div>
+    </aside>
+
+    <!-- This is where Phaser will put its game canvas -->
+    <section id="game-panel"></section>
+  </div>
+
+  <script type="module" src="src/main.js"></script>
+</body>
+</html>
