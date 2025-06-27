@@ -7,25 +7,24 @@ export default class GraphNode {
    * @param {Phaser.Scene} scene
    */
   constructor(id, label, x, y, scene) {
-    this.id     = id;
-    this.label  = label;
-    this.scene  = scene;
+    this.id    = id;
+    this.label = label;
+    this.scene = scene;
 
-    // Create the visual circle + label
+    // 1) draw the circle, enable drag, and store its id
     this.circle = scene.add.circle(x, y, 20, 0x888888)
       .setStrokeStyle(2, 0xffffff)
-      .setInteractive();
-    this.text = scene.add.text(x, y + 30, label, {
-      fontSize: '12px', color: '#fff'
-    }).setOrigin(0.5);
+      .setInteractive({ useHandCursor: true })
+      .setData('id', id);            // ← critical: so getData('id') works
 
-    // enable dragging
-    scene.input.setDraggable(this.circle);
-    this.circle.input.cursor = 'pointer';
-    this.circle.setData('ref', this);
+    // 2) draw the label underneath
+    this.text = scene.add.text(x, y + 30, label, {
+      fontSize: '12px',
+      color:   '#fff'
+    }).setOrigin(0.5);
   }
 
-  // Move both visuals together
+  // helper to move both parts together
   setPosition(x, y) {
     this.circle.setPosition(x, y);
     this.text.setPosition(x, y + 30);

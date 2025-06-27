@@ -4,9 +4,9 @@ export default [
   { id: 'C', label: 'Cyberdyne', correctNeighbors: ['A', 'E'] },
   { id: 'D', label: 'Delta Inc', correctNeighbors: ['B'] },
   { id: 'E', label: 'Echo Co', correctNeighbors: ['C'] },
-  { id: 'F', label: 'Falcon Ltd', correctNeighbors: [] },
+  { id: 'F', label: 'Falcon Ltd', correctNeighbors: ['A', 'B'] },
   { id: 'G', label: 'Gamma plc', correctNeighbors: ['H'] },
   { id: 'H', label: 'Helix AG', correctNeighbors: ['G'] },
-  { id: 'I', label: 'Ionix', correctNeighbors: [] },
-  { id: 'J', label: 'Jupiter Systems', correctNeighbors: [] }
+  { id: 'I', label: 'Jeesus', correctNeighbors: ['J'] },
+  { id: 'J', label: 'Jupiter Systems', correctNeighbors: ['I'] }
 ];

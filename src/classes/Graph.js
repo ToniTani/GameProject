@@ -14,88 +14,106 @@ export default class Graph {
    *   ]
    */
   constructor(scene, data) {
-    this.scene = scene;
-    this.data  = data;         // <-- store the data array here
-    this.nodes = new Map();    // will map id → GraphNode instance
-    this.edges = [];           // will store GraphEdge instances
-    this._createNodes();       // now uses this.data instead of mockData
+    this.scene         = scene;
+    this.data          = data;            
+    this.nodes         = new Map();       
+    this.currentEdges  = [];              // ← initialize here
+    this.graphics      = scene.add
+                            .graphics()
+                            .lineStyle(2, 0x00ff00);
+
+    this._createNodes();
   }
 
   _createNodes() {
-    const radius = 200;
+    const radius     = 200;
     const { centerX, centerY } = this.scene.cameras.main;
-    const step = (2 * Math.PI) / this.data.length;
+    const step       = (2 * Math.PI) / this.data.length;
 
     this.data.forEach((nodeDef, idx) => {
       const angle = idx * step;
-      const x = centerX + radius * Math.cos(angle);
-      const y = centerY + radius * Math.sin(angle);
+      const x     = centerX + radius * Math.cos(angle);
+      const y     = centerY + radius * Math.sin(angle);
 
-      // Create a GraphNode for each entry in the passed-in data
+      // Create a GraphNode (it now stores its id on the circle)
       const node = new GraphNode(nodeDef.id, nodeDef.label, x, y, this.scene);
       this.nodes.set(nodeDef.id, node);
+
+      // floating tween
+      this.scene.tweens.add({
+        targets: node.circle,
+        props: {
+          y: {
+            value: y - 8,
+            duration: 2000,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1
+          }
+        },
+        delay: idx * 100
+      });
     });
   }
 
   /**
-   * Find and return any brand-new edges based on proximity.
-   * Only uses this.nodes map and this.data (for correctNeighbors logic later).
-   * @param {number} threshold  How close two nodes must be to consider them “connected.”
-   * @returns {GraphEdge[]}   An array of the newly created GraphEdge instances.
+   * Connect a single dropped node to its nearest neighbor
+   * within [minDist..maxDist]. Returns the new edge or null.
    */
-  detectNewEdges(threshold = 50) {
-    const newEdges = [];
+  connectNode(sourceId, minDist = 20, maxDist = 100) {
+    // Guard against bad ID
+    const graphNode = this.nodes.get(sourceId);
+    if (!graphNode) {
+      console.warn(
+        `Graph.connectNode: unknown sourceId “${sourceId}”`,
+        Array.from(this.nodes.keys())
+      );
+      return null;
+    }
 
-    // Only check each unordered pair once:
-    const keys = Array.from(this.nodes.keys()); // e.g. ['A','B','C', …]
-    for (let i = 0; i < keys.length; i++) {
-      for (let j = i + 1; j < keys.length; j++) {
-        const aId = keys[i];
-        const bId = keys[j];
-        const aNode = this.nodes.get(aId);
-        const bNode = this.nodes.get(bId);
+    const sourceCircle = graphNode.circle;
+    let bestDist = Infinity, bestId = null;
 
-        const dist = Phaser.Math.Distance.Between(aNode.x, aNode.y, bNode.x, bNode.y);
-        const edgeKey = `${aId}-${bId}`;
+    // find nearest neighbor in range
+    this.nodes.forEach((node, id) => {
+      if (id === sourceId) return;
+      const d = Phaser.Math.Distance.Between(
+        sourceCircle.x, sourceCircle.y,
+        node.circle.x,  node.circle.y
+      );
+      if (d >= minDist && d <= maxDist && d < bestDist) {
+        bestDist = d;
+        bestId   = id;
+      }
+    });
 
-        const alreadyExists = this.edges.some(e => e.key === edgeKey);
-        if (dist < threshold && !alreadyExists) {
-          const edge = new GraphEdge(aNode, bNode, this.scene);
-          this.edges.push(edge);
-          newEdges.push(edge);
-        }
+    // create the edge if valid & not duplicate
+    if (bestId) {
+      const key = `${sourceId}-${bestId}`;
+      if (!this.currentEdges.some(e => e.key === key)) {
+        const edge = { from: sourceId, to: bestId, key };
+        this.currentEdges.push(edge);
+        return edge;
       }
     }
 
-    return newEdges;
+    return null;
   }
 
-  /**
-   * Draw all edges (old + new) onto a Graphics object.
-   * @param {Phaser.GameObjects.Graphics} graphics
-   */
-  renderEdges(graphics) {
-    graphics.clear().lineStyle(2, 0x00ff00);
-    this.edges.forEach(e => {
-      const [p1, p2] = e.points;
-      graphics.moveTo(p1.x, p1.y).lineTo(p2.x, p2.y);
+  /** Draw all stored edges. */
+  renderEdges() {
+    this.graphics.clear().lineStyle(2, 0x00ff00);
+    this.currentEdges.forEach(e => {
+      const a = this.nodes.get(e.from).circle;
+      const b = this.nodes.get(e.to).circle;
+      this.graphics.moveTo(a.x, a.y).lineTo(b.x, b.y);
     });
-    graphics.strokePath();
+    this.graphics.strokePath();
   }
 
-  /**
-   * Utility to fetch the definition (from this.data) for a given node ID.
-   * Useful when you want to check correctNeighbors later.
-   */
-  getDefinitionById(id) {
-    return this.data.find(d => d.id === id);
-  }
-
-  /**
-   * Clean up any created nodes (if needed).
-   */
-  destroy() {
-    this.nodes.forEach(n => n.destroy());
-    this.edges.length = 0;
+  /** Returns 1 if the dropped edge was correct, else 0. */
+  scoreEdge(edge) {
+    const def = this.data.find(n => n.id === edge.from);
+    return def.correctNeighbors.includes(edge.to) ? 1 : 0;
   }
 }
