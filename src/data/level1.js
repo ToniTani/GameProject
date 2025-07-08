@@ -1,4 +1,5 @@
-export default [
+export default { 
+  nodes: [
   { id: 'A', label: 'Acme Corp', correctNeighbors: ['B', 'C'] },
   { id: 'B', label: 'Beta LLC', correctNeighbors: ['A', 'D'] },
   { id: 'C', label: 'Cyberdyne', correctNeighbors: ['A', 'E'] },
@@ -7,6 +8,9 @@ export default [
   { id: 'F', label: 'Falcon Ltd', correctNeighbors: ['A', 'B'] },
   { id: 'G', label: 'Gamma plc', correctNeighbors: ['H'] },
   { id: 'H', label: 'Helix AG', correctNeighbors: ['G'] },
-  { id: 'I', label: 'Jeesus', correctNeighbors: ['J'] },
-  { id: 'J', label: 'Jupiter Systems', correctNeighbors: ['I'] }
-];
+  { id: 'I', label: 'Jeus', correctNeighbors: ['J'] },
+  { id: 'J', label: 'Jupiter Systems', correctNeighbors: ['I'] }],
+timeLimit: 60,
+thresholds: [4],
+layout: 'circle'
+};

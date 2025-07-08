@@ -8,6 +8,7 @@ import LevelCompleteScene from './scenes/LevelCompleteScene.js';
 import MenuScene from './scenes/MenuScene.js';
 import PreloadScene from './scenes/PreloadScene.js';
 import LightningPipeline from './pipelines/LightningPipeline.js';
+import SettingsScene from './scenes/SettingsScene.js';
 
 const config = {
   type: Phaser.AUTO,
@@ -32,6 +33,7 @@ const config = {
   scene: [
     PreloadScene,
     MenuScene,
+    SettingsScene,
     GraphPuzzleScene,
     UIScene,
     LevelCompleteScene,

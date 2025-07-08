@@ -79,8 +79,8 @@ export default class LightningPipeline extends Phaser.Renderer.WebGL.Pipelines.S
           uv.x += uXOffset;
           uv += 2.0 * fbm(uv * uSize + 0.8 * iTime * uSpeed) - 1.0;
           float dist = abs(uv.x);
-          vec3 base = hsv2rgb(vec3(uHue/360.0, 0.7, 0.8));
-          float strength = pow(mix(0.0,0.07, hash11(iTime*uSpeed)) / dist, 1.0);
+          vec3 base = hsv2rgb(vec3(uHue/360.0, 1.0, 1.0));
+          float strength = pow(mix(0.0,0.07, hash11(iTime*uSpeed)) / abs(uv.x), 1.0);
           vec3 col = base * strength * uIntensity;
           fragColor = vec4(col, 1.0);
         }

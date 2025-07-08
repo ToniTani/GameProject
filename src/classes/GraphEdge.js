@@ -13,7 +13,7 @@ export default class GraphEdge {
     // Use a single Graphics object externally to draw, so this could be metadata only
   }
 
-  // You can compute endpoints on demand:
+  // Compute endpoints on demand:
   get points() {
     return [
       { x: this.from.x, y: this.from.y },

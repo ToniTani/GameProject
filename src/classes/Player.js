@@ -30,18 +30,21 @@ export default class Player {
       .setScale(2)
       .play('idle');
 
-    // 3) Input: arrow keys + "E" for pick/drop
-    this.cursors = scene.input.keyboard.createCursorKeys();
-    this.pickKey = scene.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.E);
+// 3) Input: arrow keys + pick/drop key from registry
+this.cursors = scene.input.keyboard.createCursorKeys();
 
-    // 5) Overlap: if "E" pressed while overlapping a node, pick it u
+// lookup the current pick/drop key (default to “E”)
+const keyName = (scene.registry.get('pickupKey') || 'E').toUpperCase();
+this.pickKey = scene.input.keyboard.addKey(
+  Phaser.Input.Keyboard.KeyCodes[keyName]
+);
 
-    // 6) Press "E" again to drop
-    this.pickKey.off('down');  // remove any old listener
-    this.pickKey.on('down', () => {
-    if (this.heldNode) {
+// 4) On “down” toggle pick vs drop
+//    (no overlap(), no physics groups)
+this.pickKey.on('down', () => {
+  if (this.heldNode) {
     this._tryDrop();
-     } else {
+  } else {
     this._tryPickUp();
   }
 });
@@ -84,7 +87,7 @@ _tryPickUp() {
   if (best) {
     // STOP the floating tween so it won’t snap back later
     this.scene.tweens.killTweensOf(best);
-
+    this.scene.sound.play('pickup', { volume: 0.5 }); // sound effect
     this.heldNode = best;
     best.setDepth(200);
     best.setPosition(

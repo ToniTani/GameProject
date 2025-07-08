@@ -19,7 +19,11 @@ export default class PreloadScene extends Phaser.Scene {
       frameHeight: 32
     });
 
-    // 2) (Optionally) load any other global assets here
+  // ─── audio assets ─────────────────────
+
+    this.load.audio('menu',       '/src/assets/audio/menu.mp3');
+    this.load.audio('song',       '/src/assets/audio/song.mp3');
+    this.load.audio('pickup',  '/src/assets/audio/pickup.mp3');
   }
 
   create() {

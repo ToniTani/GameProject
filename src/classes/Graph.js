@@ -7,9 +7,10 @@ export default class Graph {
   /**
    * @param {Phaser.Scene} scene
    * @param {Array<Object>} data
+   * @param {Object} opts
    *   An array of node definitions, e.g.
    *   [
-   *     { id: 'A', label: 'Acme Corp', correctNeighbors: ['B','C'] },
+   *     { randomize:  },
    *     …
    *   ]
    */
@@ -25,35 +26,109 @@ export default class Graph {
     this._createNodes();
   }
 
-  _createNodes() {
-    const radius     = 200;
-    const { centerX, centerY } = this.scene.cameras.main;
-    const step       = (2 * Math.PI) / this.data.length;
+_createNodes() {
+    const { width, height } = this.scene.cameras.main;
+    const cx = width/2, cy = height/2 - 50;
+    const R  = Math.min(width, height) * 0.35;
+    const N  = this.data.length;
 
-    this.data.forEach((nodeDef, idx) => {
-      const angle = idx * step;
-      const x     = centerX + radius * Math.cos(angle);
-      const y     = centerY + radius * Math.sin(angle);
+    // helper to actually place node i at (x,y)
+    const place = (i, x, y) => {
+      const def  = this.data[i];
+      const node = new GraphNode(def.id, def.label, x, y, this.scene);
+      this.nodes.set(def.id, node);
 
-      // Create a GraphNode (it now stores its id on the circle)
-      const node = new GraphNode(nodeDef.id, nodeDef.label, x, y, this.scene);
-      this.nodes.set(nodeDef.id, node);
-
-      // floating tween
+      // optional bobbing tween
       this.scene.tweens.add({
         targets: node.circle,
-        props: {
-          y: {
-            value: y - 8,
-            duration: 2000,
-            ease: 'Sine.easeInOut',
-            yoyo: true,
-            repeat: -1
-          }
-        },
-        delay: idx * 100
+        props: { y: { value: y-8, duration:2000, ease:'Sine.easeInOut', yoyo:true, repeat:-1 }},
+        delay: i * 100
       });
-    });
+    };
+
+    switch (this.layout) {
+      case 'star':
+        {
+          // build a 5-point star (10-vertex polyline)
+          const outer = R, inner = R*0.5, pts = [];
+          for (let k=0; k<10; k++) {
+            const ang = (Math.PI/5)*k - Math.PI/2;
+            const r   = (k%2===0 ? outer : inner);
+            pts.push({ x: cx + r*Math.cos(ang), y: cy + r*Math.sin(ang) });
+          }
+          // compute edges and perimeter
+          const edges = [], total = pts.reduce((sum,p,i) => {
+            const nxt = pts[(i+1)%10];
+            const len = Phaser.Math.Distance.Between(p.x,p.y,nxt.x,nxt.y);
+            edges.push({ x:p.x, y:p.y, dx:nxt.x-p.x, dy:nxt.y-p.y, len });
+            return sum + len;
+          },0);
+          // place N nodes evenly around that star
+          for (let i=0; i<N; i++) {
+            let d = (i/N)*total;
+            for (let e of edges) {
+              if (d <= e.len) {
+                const t = d/e.len;
+                place(i, e.x + e.dx*t, e.y + e.dy*t);
+                break;
+              }
+              d -= e.len;
+            }
+          }
+        }
+        break;
+
+      case 'square':
+      case 'diamond':
+        {
+          // corners of a square
+          const pts = [
+            { x:cx-R, y:cy-R },
+            { x:cx+R, y:cy-R },
+            { x:cx+R, y:cy+R },
+            { x:cx-R, y:cy+R }
+          ];
+          if (this.layout === 'diamond') {
+            // rotate each corner 45°
+            for (let p of pts) {
+              const dx = p.x-cx, dy = p.y-cy;
+              p.x = cx + (dx-dy)/Math.SQRT2;
+              p.y = cy + (dx+dy)/Math.SQRT2;
+            }
+          }
+          // perimeter edges
+          const edges = [], total = pts.reduce((sum,p,i) => {
+            const nxt = pts[(i+1)%4];
+            const len = Phaser.Math.Distance.Between(p.x,p.y,nxt.x,nxt.y);
+            edges.push({ x:p.x, y:p.y, dx:nxt.x-p.x, dy:nxt.y-p.y, len });
+            return sum+len;
+          },0);
+          // place N
+          for (let i=0; i<N; i++) {
+            let d = (i/N)*total;
+            for (let e of edges) {
+              if (d <= e.len) {
+                const t = d/e.len;
+                place(i, e.x + e.dx*t, e.y + e.dy*t);
+                break;
+              }
+              d -= e.len;
+            }
+          }
+        }
+        break;
+
+      case 'circle':
+      default:
+        {
+          // classic circle
+          const step = (2*Math.PI)/N;
+          for (let i=0; i<N; i++) {
+            const ang = step*i;
+            place(i, cx + R*Math.cos(ang), cy + R*Math.sin(ang));
+          }
+        }
+    }
   }
 
   /**
