@@ -1,4 +1,5 @@
 export default class ScoreManager {
+  
 constructor(scene, thresholds = []) {
   this.scene        = scene;
   this.score        = 0;

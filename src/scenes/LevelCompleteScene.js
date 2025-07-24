@@ -6,70 +6,99 @@ export default class LevelCompleteScene extends Phaser.Scene {
   }
 
   init(data) {
-    // data.level is already the next level number (1-based)
-    this.nextLevel = data.level;
-    this.score     = data.score;
-    this.timeLeft   = data.timeLeft   || 0;
-    this.finalScore = data.final      || this.baseScore;
+    this.timeBonus  = data.timeLeft   || 0;
+    this.finalScore = data.final      || 0;
     this.highScore  = data.highScore  || 0;
+    this.nextLevel  = data.level      || 1;
+    this.story      = data.story      || '';
   }
 
-  create() {
-    const { width, height } = this.cameras.main;
+create() {
+  const { width, height } = this.cameras.main;
+  const cx = width / 2;
 
-    // semi‐transparent dark backdrop
-    this.add.rectangle(0, 0, width, height, 0x000000, 0.7).setOrigin(0);
+  // dark overlay
+  this.add.rectangle(0, 0, width, height, 0x000000, 0.7).setOrigin(0);
 
-    // Title
-    this.add.text(width/2, height/2 - 120, 'Level Complete!', {
-      fontSize: '48px',
-      color:   '#44ff44',
-      fontStyle: 'bold'
-    }).setOrigin(0.5);
+  // layout constants
+  const TITLE_SIZE   = 40;
+  const TEXT_SIZE    = 18;
+  const PAD          = 16;
+  const LINE_HEIGHT  = 32;
 
-    // Scores
-    const infoY = height/2 - 40;
-    const lineHeight = 36;
-    this.add.text(width/2, infoY + lineHeight * 0, `Score: ${this.baseScore}`, {
-      fontSize: '28px', color: '#ffffff'
-    }).setOrigin(0.5);
+  // extra padding after story and between buttons
+  const STORY_PAD    = 32;
+  const BTN_PAD      = 24;
 
-    this.add.text(width/2, infoY + lineHeight * 1, `Time Bonus: ${this.timeLeft}`, {
-      fontSize: '28px', color: '#ffffff'
-    }).setOrigin(0.5);
+  // 1) Title at 20% down
+  let y = height * 0.2;
+  this.add.text(cx, y, 'Level Complete!', {
+    fontSize: `${TITLE_SIZE}px`,
+    color:   '#44ff44',
+    fontStyle:'bold'
+  }).setOrigin(0.5);
+  y += TITLE_SIZE + PAD;
 
-    this.add.text(width/2, infoY + lineHeight * 2, `Final Score: ${this.finalScore}`, {
-      fontSize: '32px', color: '#ffff00', fontStyle: 'bold'
-    }).setOrigin(0.5);
+  // 2) Time Bonus
+  this.add.text(cx, y, `Time Bonus: ${this.timeBonus}`, {
+    fontSize: `${TEXT_SIZE}px`,
+    color:    '#ffffff'
+  }).setOrigin(0.5);
+  y += LINE_HEIGHT;
 
-    this.add.text(width/2, infoY + lineHeight * 3, `High Score: ${this.highScore}`, {
-      fontSize: '28px', color: '#ffaa00'
-    }).setOrigin(0.5);
+  // 3) Final Score
+  this.add.text(cx, y, `Final Score: ${this.finalScore}`, {
+    fontSize: `${TEXT_SIZE}px`,
+    color:    '#ffff00'
+  }).setOrigin(0.5);
+  y += LINE_HEIGHT;
 
-    // Next Level button
-    this.add.text(width/2, height/2 + 120, '▶ Next Level', {
-      fontSize: '22px',
-      color: '#00ff00',
-      backgroundColor: '#222',
-      padding: { x: 12, y: 6 }
-    })
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true })
-      .on('pointerup', () => {
-        this.scene.start('GraphPuzzleScene', { level: this.nextLevel });
-      });
+  // 4) High Score
+  this.add.text(cx, y, `High Score: ${this.highScore}`, {
+    fontSize: `${TEXT_SIZE}px`,
+    color:    '#ffaa00'
+  }).setOrigin(0.5);
+  y += LINE_HEIGHT + PAD;
 
-    // Back to Menu
-    this.add.text(width/2, height/2 + 180, '← Main Menu', {
-      fontSize: '20px',
-      color: '#00aaff',
-      backgroundColor: '#222',
-      padding: { x: 10, y: 5 }
-    })
-      .setOrigin(0.5)
-      .setInteractive({ useHandCursor: true })
-      .on('pointerup', () => {
-        this.scene.start('MenuScene');
-      });
+  // 5) Story paragraph (if any)
+  if (this.story) {
+    const storyBlock = this.add.text(cx, y, this.story, {
+      fontSize: `${TEXT_SIZE}px`,
+      color:    '#cccccc',
+      align:    'center',
+      wordWrap: { width: width * 0.75, useAdvancedWrap: true },
+      lineSpacing: 4
+    }).setOrigin(0.5, 0);
+    y += storyBlock.height + STORY_PAD;
+  } else {
+    y += STORY_PAD;
+  }
+
+  // 6) Next Level button
+  this.add.text(cx, y, '▶ Next Level', {
+    fontSize: '20px',
+    color: '#00ff00',
+    backgroundColor: '#222',
+    padding: { x:10, y:4 }
+  })
+    .setOrigin(0.5)
+    .setInteractive({ useHandCursor: true })
+    .on('pointerup', () => {
+      this.scene.start('GraphPuzzleScene', { level: this.nextLevel });
+    });
+  y += LINE_HEIGHT + BTN_PAD;
+
+  // 7) Main Menu button
+  this.add.text(cx, y, '← Main Menu', {
+    fontSize: '18px',
+    color: '#00aaff',
+    backgroundColor: '#222',
+    padding: { x:8, y:4 }
+  })
+    .setOrigin(0.5)
+    .setInteractive({ useHandCursor: true })
+    .on('pointerup', () => {
+      this.scene.start('MenuScene');
+    });
   }
 }

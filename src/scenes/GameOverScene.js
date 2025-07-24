@@ -8,6 +8,7 @@ export default class GameOverScene extends Phaser.Scene {
   init(data) {
     // Expecting { score: number } passed in from GraphPuzzleScene
     this.finalScore = data.score ?? 0;
+    this.highScore  = data.highScore;
   }
 
   create() {
@@ -25,6 +26,7 @@ export default class GameOverScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
+      
     // Display the final score
     this.add
       .text(width / 2, height / 2 - 20, `Score: ${this.finalScore}`, {
@@ -63,5 +65,29 @@ export default class GameOverScene extends Phaser.Scene {
       .on('pointerup', () => {
         this.scene.start('MenuScene');
       });
+
+    // ── End‐Credits Scroll ────────────────────────────
+    const credits = [
+        'The Knowledge Graph Puzzle',
+        'by Toni Tani',
+        '',
+        'Thanks for playing!',
+        '',
+        'Powered by Phaser.js'
+      ];
+
+      const roll = this.add.text(width/2, height + 20, credits.join('\n'), {
+        fontSize: '20px',
+        color:    '#ffffff',
+        align:    'center',
+        lineSpacing: 8
+      }).setOrigin(0.5, 0);
+
+      this.tweens.add({
+        targets: roll,
+        y:       -credits.length * 28,
+        duration: 8000,
+        ease:     'Linear'
+      });
+    }
   }
-}

@@ -22,6 +22,7 @@ export default class GraphPuzzleScene extends Phaser.Scene {
 
   init(data) {
     this.level = data.level || 1;
+    this.cumulativeScore = data.cumulativeScore || 0;
   }
 
   create() {
@@ -63,9 +64,10 @@ export default class GraphPuzzleScene extends Phaser.Scene {
       // decide data/time/thresholds
   const cfg = LEVELS[this.level] || LEVELS[1];
   const { nodes, timeLimit, thresholds, layout } = cfg;
-
+  //const randomize = this.level > 1; 
+  
   this.graphics  = this.add.graphics();
-  this.graph     = new Graph(this, nodes, { layout });
+  this.graph     = new Graph(this, nodes, { layout: cfg.layout });
   this.timer     = new Timer(this, timeLimit);
   this.scoreMgr  = new ScoreManager(this, thresholds);
 
@@ -81,12 +83,13 @@ export default class GraphPuzzleScene extends Phaser.Scene {
   }
 
   _setupEndOfLevelHandlers() {
-    this.events.on('time-up',    () => this._handleGameOver());
-    this.events.on('level-complete', lvl => this._handleLevelComplete(lvl));
+    this.events.on('time-up',       () => this._handleGameOver());
+    this.events.on('level-complete', () => this._handleLevelComplete());
   }
 
   _handleGameOver() {
     this.timer.stop();
+
     const base  = this.scoreMgr.score;
     const bonus = 0;
     this._updateHighScore(base + bonus);
@@ -97,17 +100,22 @@ export default class GraphPuzzleScene extends Phaser.Scene {
     });
   }
 
-  _handleLevelComplete(nextLevel) {
+  _handleLevelComplete() {
+    const cfg = LEVELS[this.level] || LEVELS[1];
     this.timer.stop();
     const base  = this.scoreMgr.score;
     const bonus = this.timer.timeLeft || 0;
     this._updateHighScore(base + bonus);
+
+    const nextLevel = this.level + 1;
+
     this.scene.start('LevelCompleteScene', {
       level: nextLevel,
       score: base,
       timeLeft: bonus,
       final: base+bonus,
-      highScore: this.highScore
+      highScore: this.highScore,
+      story: cfg.story
     });
   }
 

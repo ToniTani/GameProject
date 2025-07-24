@@ -14,7 +14,7 @@ export default class PreloadScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // 1) Load the player spritesheet under the key 'player'
-    this.load.spritesheet('player', '/player_spritesheet.png', {
+    this.load.spritesheet('player', '/Frame 47.svg', {
       frameWidth: 32,
       frameHeight: 32
     });

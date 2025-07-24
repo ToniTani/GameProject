@@ -1,16 +1,18 @@
 export default { 
-  nodes: [
-  { id: 'A', label: 'Acme Corp', correctNeighbors: ['B', 'C'] },
-  { id: 'B', label: 'Beta LLC', correctNeighbors: ['A', 'D'] },
-  { id: 'C', label: 'Cyberdyne', correctNeighbors: ['A', 'E'] },
-  { id: 'D', label: 'Delta Inc', correctNeighbors: ['B'] },
-  { id: 'E', label: 'Echo Co', correctNeighbors: ['C'] },
-  { id: 'F', label: 'Falcon Ltd', correctNeighbors: ['A', 'B'] },
-  { id: 'G', label: 'Gamma plc', correctNeighbors: ['H'] },
-  { id: 'H', label: 'Helix AG', correctNeighbors: ['G'] },
-  { id: 'I', label: 'Jeus', correctNeighbors: ['J'] },
-  { id: 'J', label: 'Jupiter Systems', correctNeighbors: ['I'] }],
-timeLimit: 60,
+   nodes: [
+    { id: 'A', label: 'SpaceX',             correctNeighbors: ['B','C','D'] },
+    { id: 'B', label: 'Blue Origin',        correctNeighbors: ['A','C'] },
+    { id: 'C', label: 'Rocket Lab',         correctNeighbors: ['A','B'] },
+    { id: 'D', label: 'Virgin Galactic',    correctNeighbors: ['A','E'] },
+    { id: 'E', label: 'Orbital ATK',        correctNeighbors: ['D'] },
+    { id: 'F', label: 'AstroNova',          correctNeighbors: [] },
+    { id: 'G', label: 'GalacticExpress',    correctNeighbors: [] },
+    { id: 'H', label: 'StellarLink',        correctNeighbors: [] },
+    { id: 'I', label: 'LunarLogistics',     correctNeighbors: [] },
+    { id: 'J', label: 'OrionTech',          correctNeighbors: [] }
+  ],
+timeLimit: 50,
 thresholds: [4],
-layout: 'circle'
+layout: 'circle',
+story: 'Great job! The business network has stabilized—now let’s see how stars align…'
 };

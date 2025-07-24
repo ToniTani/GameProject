@@ -1,16 +1,18 @@
 export default { 
   nodes: [
-  { id: 'A', label: 'Acme Corp', correctNeighbors: ['B', 'C'] },
-  { id: 'B', label: 'Beta LLC', correctNeighbors: ['A', 'D'] },
-  { id: 'C', label: 'Cyberdyne', correctNeighbors: ['A', 'E'] },
-  { id: 'D', label: 'Delta Inc', correctNeighbors: ['B'] },
-  { id: 'E', label: 'Echo Co', correctNeighbors: ['C'] },
-  { id: 'F', label: 'Falcon Ltd', correctNeighbors: ['A', 'B'] },
-  { id: 'G', label: 'Gamma plc', correctNeighbors: ['H'] },
-  { id: 'H', label: 'Helix AG', correctNeighbors: ['G'] },
-  { id: 'I', label: 'Jeus', correctNeighbors: ['J'] },
-  { id: 'J', label: 'Jupiter Systems', correctNeighbors: ['I'] }],
+    { id: 'A', label: 'Toyota',             correctNeighbors: ['B','C'] },
+    { id: 'B', label: 'Volkswagen',         correctNeighbors: ['A','D'] },
+    { id: 'C', label: 'Ford',               correctNeighbors: ['A','D','E'] },
+    { id: 'D', label: 'BMW',                correctNeighbors: ['B','C'] },
+    { id: 'E', label: 'Tesla',              correctNeighbors: ['C'] },
+    { id: 'F', label: 'CyberAuto',          correctNeighbors: [] },
+    { id: 'G', label: 'MotorDynamics',      correctNeighbors: [] },
+    { id: 'H', label: 'AutoSphere',         correctNeighbors: [] },
+    { id: 'I', label: 'DriveTech',          correctNeighbors: [] },
+    { id: 'J', label: 'ElectroMobile',      correctNeighbors: [] }
+  ],
 timeLimit: 60,
 thresholds: [4],
-layout: 'star'
+layout: 'star',
+story: 'The network steadied—Square had arrived. Edges sharp, logic firm, Square brought order.'
 };

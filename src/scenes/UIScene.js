@@ -39,14 +39,16 @@ export default class UIScene extends Phaser.Scene {
    */
   getLevelStory(level) {
     switch (level) {
-      case 1:
-        return 'Connect the five core companies before time runs out.';
-      case 2:
-        return 'New connections, new challenges—build the second network!';
-      // add more level‐specific text as needed:
-      // case 3: return 'Level 3: ...';
-      default:
-        return 'Connect all companies in the network!';
+    case 1:
+      return 'Connect the five core companies before time runs out.';
+    case 2:
+      return 'New connections, new challenges—build the automotive network!';
+    case 3:
+      return 'Forge the steel empire—only true steel giants belong.';
+    case 4:
+      return 'Hydrogen is the future. Link the production chain to win!';
+    default:
+      return 'Connect all companies in the network!';
     }
   }
 }

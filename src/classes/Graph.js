@@ -14,16 +14,15 @@ export default class Graph {
    *     …
    *   ]
    */
-  constructor(scene, data) {
-    this.scene         = scene;
-    this.data          = data;            
-    this.nodes         = new Map();       
-    this.currentEdges  = [];              // ← initialize here
-    this.graphics      = scene.add
-                            .graphics()
-                            .lineStyle(2, 0x00ff00);
-
-    this._createNodes();
+  constructor(scene, data, opts = {}) {
+  this.scene       = scene;
+  this.data        = data;
+  this.randomize   = !!opts.randomize;
+  this.layout      = opts.layout || 'circle';
+  this.nodes       = new Map();
+  this.currentEdges= [];
+  this.graphics    = scene.add.graphics().lineStyle(2,0x00ff00);
+  this._createNodes();
   }
 
 _createNodes() {
