@@ -14,16 +14,16 @@ export default class PreloadScene extends Phaser.Scene {
     }).setOrigin(0.5);
 
     // 1) Load the player spritesheet under the key 'player'
-    this.load.spritesheet('player', '/Frame 47.svg', {
+    this.load.spritesheet('player','Frame47.svg', {
       frameWidth: 32,
       frameHeight: 32
     });
 
   // ─── audio assets ─────────────────────
 
-    this.load.audio('menu',       '/src/assets/audio/menu.mp3');
-    this.load.audio('song',       '/src/assets/audio/song.mp3');
-    this.load.audio('pickup',  '/src/assets/audio/pickup.mp3');
+    this.load.audio('menu','menu.mp3');
+    this.load.audio('song','song.mp3');
+    this.load.audio('pickup','pickup.mp3');
   }
 
   create() {
