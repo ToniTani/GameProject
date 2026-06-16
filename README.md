@@ -2,7 +2,7 @@
  
 A small browser game that turns a **business ecosystem into a knowledge‑graph puzzle**: connect the right companies before the timer runs out. It was built as a **research artifact** — a case study in using a large language model (LLM) as a *co‑developer*.
  
-> Status: playable demo and research prototype — not a finished product. Content is hand‑seeded and static. One experimental "self‑updating" feature was attempted but does **not** work reliably and is not part of the shipped game (see *How it was built*).
+> Status: playable demo and research prototype — not a finished product. One experimental "self‑updating" feature was attempted but does **not** work reliably and is not part of the shipped game (see *How it was built*).
  
 ![Gameplay](docs/gameplay.png)
  
