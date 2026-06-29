@@ -7,6 +7,8 @@ import level1Config from '../data/level1.js';
 import level2Config from '../data/level2.js';
 import level3Config from '../data/level3.js';
 import level4Config from '../data/level4.js';
+import { generateSteelName, shuffleLabels, scheduleDailyHelsinki } from '../utils/nameGenerator.js';
+import namingConfig from '../config/dynamicNaming.js';
 
 const LEVELS = {
   1: level1Config,
@@ -25,10 +27,10 @@ export default class GraphPuzzleScene extends Phaser.Scene {
     this.cumulativeScore = data.cumulativeScore || 0;
   }
 
-  create() {
+  async create() {
     this._setupBackground();
     this._setupUI();
-    this._setupCoreGame();
+    await this._setupCoreGame();
     this._setupPlayer();
     this._setupEndOfLevelHandlers();
   }
@@ -60,19 +62,71 @@ export default class GraphPuzzleScene extends Phaser.Scene {
     );
   }
 
-  _setupCoreGame() {
-      // decide data/time/thresholds
-  const cfg = LEVELS[this.level] || LEVELS[1];
-  const { nodes, timeLimit, thresholds, layout } = cfg;
-  //const randomize = this.level > 1; 
-  
-  this.graphics  = this.add.graphics();
-  this.graph     = new Graph(this, nodes, { layout: cfg.layout });
-  this.timer     = new Timer(this, timeLimit);
-  this.scoreMgr  = new ScoreManager(this, thresholds);
+  async _setupCoreGame() {
+    // decide data/time/thresholds
+    const cfg = LEVELS[this.level] || LEVELS[1];
+    const { nodes, timeLimit, thresholds, layout } = cfg;
 
-  this.game.events.emit('update-score', 0);
-    } 
+    if (this.level === 3) {
+      const storageKey = 'level3Names';
+      const today = new Date().toDateString();
+
+      const applyLabels = (map) => {
+        nodes.forEach(n => {
+          if (map[n.id]) n.label = map[n.id];
+        });
+      };
+
+      const regenerateAndStore = async () => {
+        const indices = nodes.map((_, i) => i);
+        // Shuffle indices
+        for (let i = indices.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+
+        const regenCount = Math.min(namingConfig.regenerateCount, indices.length);
+        const regenIndices = indices.splice(0, regenCount);
+        for (const idx of regenIndices) {
+          nodes[idx].label = await generateSteelName();
+        }
+
+        const shuffleCount = Math.min(namingConfig.shuffleCount, indices.length);
+        if (shuffleCount > 0) {
+          const shuffleNodes = indices.splice(0, shuffleCount).map(i => nodes[i]);
+          shuffleLabels(shuffleNodes);
+        }
+
+        const map = nodes.reduce((acc, n) => {
+          acc[n.id] = n.label;
+          return acc;
+        }, {});
+        localStorage.setItem(
+          storageKey,
+          JSON.stringify({ date: new Date().toDateString(), names: map })
+        );
+        return map;
+      };
+
+      const stored = localStorage.getItem(storageKey);
+      let labelMap = stored ? JSON.parse(stored) : null;
+      if (!labelMap || labelMap.date !== today) {
+        labelMap = { date: today, names: await regenerateAndStore() };
+      }
+      applyLabels(labelMap.names);
+
+      scheduleDailyHelsinki(async () => {
+        await regenerateAndStore();
+      });
+    }
+
+    this.graphics  = this.add.graphics();
+    this.graph     = new Graph(this, nodes, { layout });
+    this.timer     = new Timer(this, timeLimit);
+    this.scoreMgr  = new ScoreManager(this, thresholds);
+
+    this.game.events.emit('update-score', 0);
+  }
 
   _setupPlayer() {
     const { centerX, centerY } = this.cameras.main;
